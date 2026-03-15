@@ -1,4 +1,5 @@
 const ignores = [
+  "",
   " ",
   "\n",
   "\t",

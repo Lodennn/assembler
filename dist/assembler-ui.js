@@ -41,13 +41,13 @@ class AssemblerUI {
         });
     }
     bindAssembleButton() {
-        const btn = document.querySelector("[data-action=\"assemble\"]");
+        const btn = document.querySelector('[data-action="assemble"]');
         if (!btn)
             return;
         btn.addEventListener("click", () => this.onAssemble());
     }
     bindClearButton() {
-        const btn = document.querySelector("[data-action=\"clear\"]");
+        const btn = document.querySelector('[data-action="clear"]');
         if (!btn)
             return;
         btn.addEventListener("click", () => this.onClear());
@@ -59,11 +59,18 @@ class AssemblerUI {
         this.clearError();
     }
     onAssemble() {
-        if (!this.textarea || !this.resultEl || !this.outputEl || !this.errorEl || !this.sectionEl)
+        if (!this.textarea ||
+            !this.resultEl ||
+            !this.outputEl ||
+            !this.errorEl ||
+            !this.sectionEl)
             return;
         const source = this.textarea.value;
         try {
             const machineCode = Assembler.assemble(source);
+            if (machineCode.length === 0) {
+                throw new Error("An empty assembly file is not allowed");
+            }
             this.showMachineCode(machineCode);
             this.clearError();
         }

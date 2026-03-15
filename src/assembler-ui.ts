@@ -22,7 +22,9 @@ class AssemblerUI {
   private samples: Record<SampleId, string> = SAMPLES;
 
   constructor() {
-    this.textarea = document.getElementById("code") as HTMLTextAreaElement | null;
+    this.textarea = document.getElementById(
+      "code",
+    ) as HTMLTextAreaElement | null;
     this.resultEl = document.getElementById("machine-code-result");
     this.outputEl = document.getElementById("machine-code-output");
     this.errorEl = document.getElementById("machine-code-error");
@@ -47,13 +49,13 @@ class AssemblerUI {
   }
 
   private bindAssembleButton(): void {
-    const btn = document.querySelector<HTMLElement>("[data-action=\"assemble\"]");
+    const btn = document.querySelector<HTMLElement>('[data-action="assemble"]');
     if (!btn) return;
     btn.addEventListener("click", () => this.onAssemble());
   }
 
   private bindClearButton(): void {
-    const btn = document.querySelector<HTMLElement>("[data-action=\"clear\"]");
+    const btn = document.querySelector<HTMLElement>('[data-action="clear"]');
     if (!btn) return;
     btn.addEventListener("click", () => this.onClear());
   }
@@ -65,10 +67,20 @@ class AssemblerUI {
   }
 
   private onAssemble(): void {
-    if (!this.textarea || !this.resultEl || !this.outputEl || !this.errorEl || !this.sectionEl) return;
+    if (
+      !this.textarea ||
+      !this.resultEl ||
+      !this.outputEl ||
+      !this.errorEl ||
+      !this.sectionEl
+    )
+      return;
     const source = this.textarea.value;
     try {
       const machineCode = Assembler.assemble(source);
+      if (machineCode.length === 0) {
+        throw new Error("An empty assembly file is not allowed");
+      }
       this.showMachineCode(machineCode);
       this.clearError();
     } catch (err) {

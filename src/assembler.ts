@@ -28,17 +28,16 @@ class Assembler {
   parse(assemblyFile: string) {
     const instructions = this.get_instructions(assemblyFile);
     instructions.forEach((instruction: string) => {
-      if (this.is_illegal_operation(instruction)) {
-        throw new Error(
-          `Illegal operation: two consecutive A-instructions ${this.last_instruction} ${instruction}`,
-        );
+      if (this.is_illegal_instruction(instruction)) {
+        // will throw an error in is_illegal_instruction
+        throw new Error(`Illegal instruction: ${instruction}`);
       } else if (
-        this.is_invalid_instruction(instruction) ||
+        this.is_ignored_instruction(instruction) ||
         this.is_label(instruction)
       ) {
         // ignore
       } else {
-        if (this.isAInstruction(instruction)) {
+        if (this.is_a_instruction(instruction)) {
           this.last_instruction_key = "A";
           this.last_instruction = instruction;
         } else {
@@ -55,11 +54,9 @@ class Assembler {
     let current_memory_address: number = 0;
     const instructions = this.get_instructions(assemblyFile);
     instructions.forEach((instruction: string) => {
-      if (this.is_illegal_operation(instruction)) {
-        throw new Error(
-          `Illegal operation: two consecutive A-instructions ${this.last_instruction} ${instruction}`,
-        );
-      } else if (this.is_invalid_instruction(instruction)) {
+      if (this.is_illegal_instruction(instruction)) {
+        // will throw an error in is_illegal_instruction
+      } else if (this.is_ignored_instruction(instruction)) {
         // ignore
       } else {
         if (this.is_label(instruction)) {
@@ -78,7 +75,7 @@ class Assembler {
   }
 
   private get_machine_code(instruction: string): string {
-    if (this.isAInstruction(instruction)) {
+    if (this.is_a_instruction(instruction)) {
       return this.get_a_instruction_machine_code(instruction);
     } else {
       return this.get_c_instruction_machine_code(instruction);
@@ -155,7 +152,7 @@ class Assembler {
     return machine_code.padStart(16, "1");
   }
 
-  private isAInstruction(instruction: string): boolean {
+  private is_a_instruction(instruction: string): boolean {
     const _instruction = this.get_clean_instruction(instruction);
 
     return _instruction[0] === "@";
@@ -169,7 +166,12 @@ class Assembler {
     const _instruction = this.get_clean_instruction(instruction);
 
     const splittedOP = this.split_instruction(_instruction);
-    return splittedOP[0] ?? "";
+    return this.is_comment(_instruction) ? "//" : (splittedOP[0] ?? "");
+  }
+
+  private is_comment(instruction: string): boolean {
+    const _instruction = this.get_clean_instruction(instruction);
+    return _instruction.startsWith("//");
   }
 
   private is_empty_instruction(instruction: string): boolean {
@@ -182,15 +184,27 @@ class Assembler {
     return ignores.includes(this.get_first_composed_op(_instruction));
   }
 
-  private is_illegal_operation(instruction: string): boolean {
+  private is_illegal_instruction(instruction: string): boolean {
     const _instruction = this.get_clean_instruction(instruction);
 
-    return (
-      this.isAInstruction(_instruction) && this.last_instruction_key === "A"
-    );
+    if (this.should_be_ignored(_instruction)) {
+      return false;
+    } else if (
+      !this.is_a_instruction(_instruction) &&
+      !this.is_c_instruction(_instruction) &&
+      !this.is_label(_instruction)
+    ) {
+      return true;
+    } else if (
+      this.is_a_instruction(_instruction) &&
+      this.last_instruction_key === "A"
+    ) {
+      return true;
+    }
+    return false;
   }
 
-  private is_invalid_instruction(instruction: string): boolean {
+  private is_ignored_instruction(instruction: string): boolean {
     const _instruction = this.get_clean_instruction(instruction);
 
     return (
@@ -220,6 +234,39 @@ class Assembler {
 
   public getMachineCodeOutput(): string[] {
     return this.machine_code_output;
+  }
+
+  private is_c_instruction(instruction: string): boolean {
+    const _instruction = this.get_clean_instruction(instruction);
+    if (!_instruction) return false;
+
+    let dest = "null";
+    let comp = "";
+    let jmp = "null";
+
+    // 1. Handle Destination (anything before '=')
+    let remaining = _instruction;
+    if (remaining.includes("=")) {
+      const parts = remaining.split("=");
+      dest = parts[0] || "";
+      remaining = parts[1] || "";
+    }
+
+    // 2. Handle Jump (anything after ';')
+    if (remaining.includes(";")) {
+      const parts = remaining.split(";");
+      comp = parts[0] || "";
+      jmp = parts[1] || "";
+    } else {
+      comp = remaining; // If no semicolon, what's left is the computation
+    }
+
+    // 3. Final Validation
+    const validDest = dest in ISA.C_INSTRUCTION.dest;
+    const validComp = comp in ISA.C_INSTRUCTION.comp;
+    const validJump = jmp in ISA.C_INSTRUCTION.jump;
+
+    return validDest && validComp && validJump;
   }
 
   print_machine_code() {
