@@ -6,6 +6,7 @@ declare const ISA: {
             D: string;
             MD: string;
             A: string;
+            AM: string;
             AD: string;
             AMD: string;
         };

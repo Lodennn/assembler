@@ -5,13 +5,11 @@ class Assembler {
     constructor(assemblyFile) {
         this.machine_code_output = [];
         this.current_symbol_address = 16;
-        this.symbol_table = symbolTable;
         this.last_instruction_key = null;
         this.last_instruction = "";
         this.MAX_ADDRESS = 32768;
-        // Read the file
+        this.symbol_table = { ...symbolTable };
         this.first_pass(assemblyFile);
-        console.log(this.symbol_table);
     }
     static getInstance(assemblyFile) {
         if (!Assembler.instance) {
@@ -31,7 +29,6 @@ class Assembler {
             }
             else {
                 if (this.isAInstruction(instruction)) {
-                    //   console.log("A-instruction", instruction);
                     this.last_instruction_key = "A";
                     this.last_instruction = instruction;
                 }
@@ -77,7 +74,8 @@ class Assembler {
         }
     }
     get_a_instruction_machine_code(instruction) {
-        const value = instruction.slice(1);
+        const _instruction = this.get_clean_instruction(instruction);
+        const value = _instruction.slice(1);
         let actual_value = value;
         if (isNaN(Number(value))) {
             if (value in this.symbol_table) {
@@ -107,23 +105,23 @@ class Assembler {
         let comp = "0";
         let jmp = "null";
         let abit = 0;
-        const clean_c_instruction = instruction.split(" ")[0] ?? instruction;
-        const has_dest = clean_c_instruction.includes("=");
-        const has_jump = clean_c_instruction.includes(";");
+        const _instruction = this.get_clean_instruction(instruction);
+        const has_dest = _instruction.includes("=");
+        const has_jump = _instruction.includes(";");
         if (has_jump && has_dest) {
-            const [dest_part, jump_part] = clean_c_instruction.split(";");
+            const [dest_part, jump_part] = _instruction.split(";");
             const [dest_key, comp_key] = dest_part.split("=");
             dest = dest_key;
             comp = comp_key;
             jmp = jump_part;
         }
         else if (has_dest && !has_jump) {
-            const [dest_key, comp_key] = clean_c_instruction.split("=");
+            const [dest_key, comp_key] = _instruction.split("=");
             dest = dest_key;
             comp = comp_key;
         }
         else if (has_jump && !has_dest) {
-            const [comp_key, jump_key] = clean_c_instruction.split(";");
+            const [comp_key, jump_key] = _instruction.split(";");
             comp = comp_key;
             jmp = jump_key;
         }
@@ -137,27 +135,33 @@ class Assembler {
         return machine_code.padStart(16, "1");
     }
     isAInstruction(instruction) {
-        return instruction[0] === "@";
+        const _instruction = this.get_clean_instruction(instruction);
+        return _instruction[0] === "@";
     }
     split_instruction(instruction) {
         return instruction.split(" ") ?? [""];
     }
     get_first_composed_op(instruction) {
-        const splittedOP = this.split_instruction(instruction);
+        const _instruction = this.get_clean_instruction(instruction);
+        const splittedOP = this.split_instruction(_instruction);
         return splittedOP[0] ?? "";
     }
     is_empty_instruction(instruction) {
-        return !instruction.length;
+        const _instruction = this.get_clean_instruction(instruction);
+        return !_instruction.length;
     }
     should_be_ignored(instruction) {
-        return ignores.includes(this.get_first_composed_op(instruction));
+        const _instruction = this.get_clean_instruction(instruction);
+        return ignores.includes(this.get_first_composed_op(_instruction));
     }
     is_illegal_operation(instruction) {
-        return (this.isAInstruction(instruction) && this.last_instruction_key === "A");
+        const _instruction = this.get_clean_instruction(instruction);
+        return (this.isAInstruction(_instruction) && this.last_instruction_key === "A");
     }
     is_invalid_instruction(instruction) {
-        return (this.is_empty_instruction(instruction) ||
-            this.should_be_ignored(instruction));
+        const _instruction = this.get_clean_instruction(instruction);
+        return (this.is_empty_instruction(_instruction) ||
+            this.should_be_ignored(_instruction));
     }
     is_valid_address(address) {
         return isNaN(Number(address)) || address >= this.MAX_ADDRESS;
@@ -166,12 +170,28 @@ class Assembler {
         return assemblyFile.split("\n");
     }
     is_label(instruction) {
-        return (instruction[0] === "(" && instruction[instruction.length - 1] === ")");
+        const _instruction = this.get_clean_instruction(instruction);
+        return (_instruction[0] === "(" && _instruction[_instruction.length - 1] === ")");
+    }
+    get_clean_instruction(instruction) {
+        return instruction.trim().split(" ")[0] ?? instruction;
+    }
+    getMachineCodeOutput() {
+        return this.machine_code_output;
     }
     print_machine_code() {
         console.log("================================");
         console.log(this.machine_code_output.join("\n"));
         console.log("================================");
+    }
+    /**
+     * Assemble the given assembly string and return machine code lines.
+     * Creates a new instance per call. Throws on invalid assembly.
+     */
+    static assemble(assembly) {
+        const instance = new Assembler(assembly);
+        instance.parse(assembly);
+        return instance.getMachineCodeOutput();
     }
 }
 export default Assembler;

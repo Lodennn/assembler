@@ -4,7 +4,54 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <script type="module" src="dist/index.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Datatype:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
   </head>
-  <body></body>
+  <body>
+    <main class="container">
+      <h1>Assembler</h1>
+      <p>get ready to see your machine code</p>
+      <section class="main">
+        <div class="main-col">
+          <textarea
+            name="code"
+            id="code"
+            cols="30"
+            rows="10"
+            placeholder="// Enter your assembly code here"
+          ></textarea>
+        </div>
+        <ul class="code-cols">
+          <li data-sample="sum"><span>Add</span></li>
+          <li data-sample="max"><span>Max</span></li>
+          <li data-sample="multi"><span>Multiplication</span></li>
+          <li data-sample="rectangle"><span>Rectangle</span></li>
+        </ul>
+        <button data-action="assemble">Assemble</button>
+        <button data-action="clear">Clear</button>
+      </section>
+      <section
+        class="machine-code"
+        id="machine-code-section"
+        aria-live="polite"
+      >
+        <div class="machine-code-result" id="machine-code-result" hidden>
+          <h2>Machine Code</h2>
+          <div class="output" id="machine-code-output"></div>
+        </div>
+        <div
+          class="output-error"
+          id="machine-code-error"
+          role="alert"
+          hidden
+        ></div>
+      </section>
+    </main>
+    <script type="module" src="dist/index.js"></script>
+  </body>
 </html>

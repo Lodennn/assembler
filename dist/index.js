@@ -1,3 +1,11 @@
-import TestAssembler from "./_test_/index.js";
-new TestAssembler();
+import AssemblerUI from "./assembler-ui.js";
+function init() {
+    new AssemblerUI();
+}
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+}
+else {
+    init();
+}
 //# sourceMappingURL=index.js.map

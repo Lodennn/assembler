@@ -23,7 +23,14 @@ declare class Assembler {
     private is_valid_address;
     private get_instructions;
     private is_label;
+    private get_clean_instruction;
+    getMachineCodeOutput(): string[];
     print_machine_code(): void;
+    /**
+     * Assemble the given assembly string and return machine code lines.
+     * Creates a new instance per call. Throws on invalid assembly.
+     */
+    static assemble(assembly: string): string[];
 }
 export default Assembler;
 //# sourceMappingURL=assembler.d.ts.map

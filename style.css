@@ -1,0 +1,173 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+ul {
+  list-style: none;
+}
+
+body {
+  font-family: "Datatype", monospace;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+  background-color: #27ae60;
+}
+
+.container {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+/* small devices */
+@media (min-width: 576px) {
+  .container {
+    max-width: 540px;
+  }
+}
+
+/* tablets */
+@media (min-width: 768px) {
+  .container {
+    max-width: 720px;
+  }
+}
+
+/* laptops */
+@media (min-width: 992px) {
+  .container {
+    max-width: 960px;
+  }
+}
+
+/* desktops */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1140px;
+  }
+}
+
+/* large screens */
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1320px;
+  }
+}
+
+main {
+  margin-block: 2rem;
+}
+
+main h1 {
+  font-size: 5rem;
+  font-weight: 900;
+}
+
+main p {
+  font-size: 2rem;
+  font-weight: 300;
+}
+
+.main {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 1rem;
+}
+
+.main .main-cols {
+}
+
+.main textarea {
+  width: 100%;
+  height: 30rem;
+  max-height: 30rem;
+  background-color: #2ecc71;
+  outline: none;
+  padding: 5px;
+  overflow-y: scroll;
+  font-size: 1.2rem;
+}
+
+.code-cols {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.code-cols li {
+  background-color: #2ecc71;
+  border-radius: 5px;
+  font-size: 1.2rem;
+  flex-grow: 1;
+  display: flex;
+  align-items: end;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.code-cols li span {
+  display: block;
+  background: rgba(0, 0, 0, 0.3);
+  width: 100%;
+  padding: 10px;
+}
+
+.code-cols li:hover {
+  transform: translateY(-5px);
+}
+
+.main [data-action="assemble"] {
+  background-color: #2ecc71;
+  border: none;
+  padding: 1rem;
+  border-radius: 5px;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.machine-code {
+  margin-top: 2rem;
+}
+
+.machine-code h2 {
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.machine-code .output,
+.machine-code .output-error {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 5px;
+  font-size: 1.2rem;
+}
+
+.machine-code .output {
+  background-color: #2ecc71;
+  overflow-y: scroll;
+  height: 30rem;
+  max-height: 30rem;
+  white-space: pre;
+}
+
+.machine-code .output-error {
+  background-color: #c0392b;
+  color: #fff;
+  border: 2px solid #a93226;
+}
+
+.main [data-action="clear"] {
+  background-color: #2ecc71;
+  border: none;
+  padding: 1rem;
+  border-radius: 5px;
+  font-size: 1.2rem;
+  cursor: pointer;
+}

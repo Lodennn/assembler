@@ -6,7 +6,7 @@ import symbolTable from "./symbol-table.js";
 class Assembler {
   private machine_code_output: string[] = [];
   private current_symbol_address: number = 16;
-  private symbol_table: Record<string, number> = symbolTable;
+  private symbol_table: Record<string, number>;
   private last_instruction_key: Operation | null = null;
   private last_instruction: string = "";
   private MAX_ADDRESS = 32768;
@@ -14,9 +14,8 @@ class Assembler {
   private static instance: Assembler;
 
   private constructor(assemblyFile: string) {
-    // Read the file
+    this.symbol_table = { ...symbolTable };
     this.first_pass(assemblyFile);
-    console.log(this.symbol_table);
   }
 
   public static getInstance(assemblyFile: string): Assembler {
@@ -31,7 +30,7 @@ class Assembler {
     instructions.forEach((instruction: string) => {
       if (this.is_illegal_operation(instruction)) {
         throw new Error(
-          `Illegal operation: two consecutive A-instructions ${this.last_instruction} ${instruction}`
+          `Illegal operation: two consecutive A-instructions ${this.last_instruction} ${instruction}`,
         );
       } else if (
         this.is_invalid_instruction(instruction) ||
@@ -40,7 +39,6 @@ class Assembler {
         // ignore
       } else {
         if (this.isAInstruction(instruction)) {
-          //   console.log("A-instruction", instruction);
           this.last_instruction_key = "A";
           this.last_instruction = instruction;
         } else {
@@ -59,7 +57,7 @@ class Assembler {
     instructions.forEach((instruction: string) => {
       if (this.is_illegal_operation(instruction)) {
         throw new Error(
-          `Illegal operation: two consecutive A-instructions ${this.last_instruction} ${instruction}`
+          `Illegal operation: two consecutive A-instructions ${this.last_instruction} ${instruction}`,
         );
       } else if (this.is_invalid_instruction(instruction)) {
         // ignore
@@ -68,7 +66,7 @@ class Assembler {
           const label = instruction.slice(1, -1);
           if (label in this.symbol_table) {
             throw new Error(
-              `Duplicate label: ${label} already exists in the symbol table with address ${this.symbol_table[label]}`
+              `Duplicate label: ${label} already exists in the symbol table with address ${this.symbol_table[label]}`,
             );
           }
           this.symbol_table[label] = current_memory_address;
@@ -88,7 +86,9 @@ class Assembler {
   }
 
   private get_a_instruction_machine_code(instruction: string): string {
-    const value = instruction.slice(1);
+    const _instruction = this.get_clean_instruction(instruction);
+
+    const value = _instruction.slice(1);
     let actual_value: string | number = value;
     if (isNaN(Number(value))) {
       if (value in this.symbol_table) {
@@ -96,7 +96,7 @@ class Assembler {
       } else {
         if (this.is_valid_address(this.current_symbol_address)) {
           throw new Error(
-            `Symbol table overflow: cannot assign address ${this.current_symbol_address} to symbol ${value} | This is screen I/O memory address(memory mapping)`
+            `Symbol table overflow: cannot assign address ${this.current_symbol_address} to symbol ${value} | This is screen I/O memory address(memory mapping)`,
           );
         }
         actual_value = this.current_symbol_address++;
@@ -121,23 +121,23 @@ class Assembler {
     let jmp: JumpKeys = "null";
     let abit: 0 | 1 = 0;
 
-    const clean_c_instruction = instruction.split(" ")[0] ?? instruction;
+    const _instruction = this.get_clean_instruction(instruction);
 
-    const has_dest = clean_c_instruction.includes("=");
-    const has_jump = clean_c_instruction.includes(";");
+    const has_dest = _instruction.includes("=");
+    const has_jump = _instruction.includes(";");
 
     if (has_jump && has_dest) {
-      const [dest_part, jump_part] = clean_c_instruction.split(";");
+      const [dest_part, jump_part] = _instruction.split(";");
       const [dest_key, comp_key] = dest_part!.split("=");
       dest = dest_key as DestKeys;
       comp = comp_key as CompKeys;
       jmp = jump_part as JumpKeys;
     } else if (has_dest && !has_jump) {
-      const [dest_key, comp_key] = clean_c_instruction.split("=");
+      const [dest_key, comp_key] = _instruction.split("=");
       dest = dest_key as DestKeys;
       comp = comp_key as CompKeys;
     } else if (has_jump && !has_dest) {
-      const [comp_key, jump_key] = clean_c_instruction.split(";");
+      const [comp_key, jump_key] = _instruction.split(";");
       comp = comp_key as CompKeys;
       jmp = jump_key as JumpKeys;
     }
@@ -156,7 +156,9 @@ class Assembler {
   }
 
   private isAInstruction(instruction: string): boolean {
-    return instruction[0] === "@";
+    const _instruction = this.get_clean_instruction(instruction);
+
+    return _instruction[0] === "@";
   }
 
   private split_instruction(instruction: string) {
@@ -164,28 +166,36 @@ class Assembler {
   }
 
   private get_first_composed_op(instruction: string): string {
-    const splittedOP = this.split_instruction(instruction);
+    const _instruction = this.get_clean_instruction(instruction);
+
+    const splittedOP = this.split_instruction(_instruction);
     return splittedOP[0] ?? "";
   }
 
   private is_empty_instruction(instruction: string): boolean {
-    return !instruction.length;
+    const _instruction = this.get_clean_instruction(instruction);
+    return !_instruction.length;
   }
 
   private should_be_ignored(instruction: string): boolean {
-    return ignores.includes(this.get_first_composed_op(instruction));
+    const _instruction = this.get_clean_instruction(instruction);
+    return ignores.includes(this.get_first_composed_op(_instruction));
   }
 
   private is_illegal_operation(instruction: string): boolean {
+    const _instruction = this.get_clean_instruction(instruction);
+
     return (
-      this.isAInstruction(instruction) && this.last_instruction_key === "A"
+      this.isAInstruction(_instruction) && this.last_instruction_key === "A"
     );
   }
 
   private is_invalid_instruction(instruction: string): boolean {
+    const _instruction = this.get_clean_instruction(instruction);
+
     return (
-      this.is_empty_instruction(instruction) ||
-      this.should_be_ignored(instruction)
+      this.is_empty_instruction(_instruction) ||
+      this.should_be_ignored(_instruction)
     );
   }
 
@@ -198,15 +208,34 @@ class Assembler {
   }
 
   private is_label(instruction: string): boolean {
+    const _instruction = this.get_clean_instruction(instruction);
     return (
-      instruction[0] === "(" && instruction[instruction.length - 1] === ")"
+      _instruction[0] === "(" && _instruction[_instruction.length - 1] === ")"
     );
+  }
+
+  private get_clean_instruction(instruction: string): string {
+    return instruction.trim().split(" ")[0] ?? instruction;
+  }
+
+  public getMachineCodeOutput(): string[] {
+    return this.machine_code_output;
   }
 
   print_machine_code() {
     console.log("================================");
     console.log(this.machine_code_output.join("\n"));
     console.log("================================");
+  }
+
+  /**
+   * Assemble the given assembly string and return machine code lines.
+   * Creates a new instance per call. Throws on invalid assembly.
+   */
+  public static assemble(assembly: string): string[] {
+    const instance = new Assembler(assembly);
+    instance.parse(assembly);
+    return instance.getMachineCodeOutput();
   }
 }
 

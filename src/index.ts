@@ -1,3 +1,11 @@
-import TestAssembler from "./_test_/index.js";
+import AssemblerUI from "./assembler-ui.js";
 
-new TestAssembler();
+function init() {
+  new AssemblerUI();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
+}

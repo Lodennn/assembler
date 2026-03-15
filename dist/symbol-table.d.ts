@@ -20,6 +20,8 @@ declare const _default: {
     R13: number;
     R14: number;
     R15: number;
+    SCREEN: number;
+    KBD: number;
 };
 export default _default;
 //# sourceMappingURL=symbol-table.d.ts.map
