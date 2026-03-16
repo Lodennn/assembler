@@ -1,6 +1,6 @@
 # Hack Assembler
 
-A **Hack Assembly** to **binary machine code** assembler for the [Nand2Tetris](https://www.nand2tetris.org/) course. Type or paste Hack assembly, click **Assemble**, and get 16-bit machine code. Built with TypeScript and a simple web UI.
+A **Hack Assembly** to **binary machine code** assembler. Type or paste Hack assembly, click **Assemble**, and get 16-bit machine code. Built with TypeScript and a simple web UI.
 
 ---
 
@@ -87,12 +87,6 @@ Supported assembly:
 - **C-instructions** — `dest=comp;jump` (e.g. `D=M+1`, `0;JMP`).
 - **Labels** — `(LABEL)` for jump targets.
 - **Comments** — Lines starting with `//` are ignored.
-
----
-
-## Nand2Tetris
-
-This project implements **Unit 6** of Nand2Tetris: an assembler that translates programs written in the Hack assembly language into the binary machine language of the Hack computer. The output is one 16-bit instruction per line, suitable for loading into the Hack CPU simulator.
 
 ---
 
