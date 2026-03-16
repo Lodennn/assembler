@@ -1,3 +1,0 @@
-declare const _default: "// Draws a rectangle at the top-left of the screen.\n// The height is R0, width is 16 pixels.\n@R0\nD=M\n@END\nD;JLE    // If R0 <= 0, exit\n\n@counter\nM=D      // counter = R0\n@SCREEN\nD=A\n@address\nM=D      // address = 16384 (base address of screen)\n\n(LOOP)\n@address\nA=M\nM=-1     // RAM[address] = -1 (16 black pixels)\n\n@address\nD=M\n@32\nD=D+A\n@address\nM=D      // address = address + 32 (next row)\n\n@counter\nM=M-1\nD=M\n@LOOP\nD;JGT    // if counter > 0, repeat\n\n(END)\n@END\n0;JMP";
-export default _default;
-//# sourceMappingURL=rectangle.d.ts.map

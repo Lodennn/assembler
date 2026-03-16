@@ -1,3 +1,0 @@
-declare const _default: "// Multiplies R0 and R1 and stores the result in R2.\n// (R0, R1, R2 refer to RAM[0], RAM[1], and RAM[2], respectively.)\n\n@R2\nM=0          // Initialize R2 to 0\n\n@R0\nD=M\n@END\nD;JEQ        // If R0 == 0, jump to END\n\n@R1\nD=M\n@END\nD;JEQ        // If R1 == 0, jump to END\n\n(LOOP)\n@R0\nD=M          // Get R0\n@R2\nM=D+M        // R2 = R2 + R0\n\n@R1\nM=M-1        // R1 = R1 - 1\nD=M          // Check remaining iterations\n\n@LOOP\nD;JGT        // If R1 > 0, repeat the loop\n\n(END)\n@END\n0;JMP        // Infinite loop";
-export default _default;
-//# sourceMappingURL=multi.d.ts.map

@@ -1,3 +1,0 @@
-declare const _default: "\n// Computes R2 = max(R0, R1)\n@R0\nD=M              // D = first number\n@R1\nD=D-M            // D = first number - second number\n@OUTPUT_FIRST\nD;JGT            // if D > 0 (first is greater) goto OUTPUT_FIRST\n@R1\nD=M              // D = second number\n@OUTPUT_D\n0;JMP            // goto OUTPUT_D\n(OUTPUT_FIRST)\n@R0\nD=M              // D = first number\n(OUTPUT_D)\n@R2\nM=D              // R2 = max(R0, R1)\n(END)\n@END\n0;JMP            // infinite loop";
-export default _default;
-//# sourceMappingURL=max.d.ts.map
