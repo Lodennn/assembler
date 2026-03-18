@@ -15,6 +15,7 @@ class MemorySegments {
 
   public parse_memory_access_command(command: string): TMemoryAccessCommand {
     if (
+      this.is_empty_command(command) ||
       this.is_invalid_memory_access_command(command) ||
       this.is_invalid_memory_access_operation(command) ||
       this.is_invalid_memory_segment(command)
@@ -40,8 +41,8 @@ class MemorySegments {
   public is_invalid_memory_access_operation(command: string): boolean {
     const _command = this.get_clean_command(command);
     try {
-      if (!_command[0]) return true;
-      if (!(_command[0] in MEMORY_ACCESS_OPERATORS)) return true;
+      if (!_command[0] || !(_command[0] in MEMORY_ACCESS_OPERATORS))
+        return true;
       return false;
     } catch (error) {
       console.error(error);
@@ -58,6 +59,9 @@ class MemorySegments {
 
   private get_clean_command(command: string) {
     return command.trim().split(" ");
+  }
+  private is_empty_command(command: string): boolean {
+    return command.trim().length === 0;
   }
 }
 

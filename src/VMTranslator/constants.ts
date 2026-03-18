@@ -24,5 +24,18 @@ export const SEGMENT_BASE: Record<string, string> = {
   [MemorySegmentsEnum.that]: "THAT",
 };
 
+// Arithmetic operators
+export const ARITHMETIC_OPERATORS: Record<string, boolean> = {
+  add: true,
+  sub: true,
+  neg: true,
+  eq: true,
+  gt: true,
+  lt: true,
+  and: true,
+  or: true,
+  not: true,
+};
+
 export const TEMP_BASE = 5;
 export const STATIC_BASE = 16;

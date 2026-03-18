@@ -1,7 +1,12 @@
 import GlobalStack from "./global-stack.js";
 import { MemorySegmentsEnum, type TInitMemorySetter } from "./types.js";
 import MemorySegments from "./memory-segments.js";
-import { SEGMENT_BASE, STATIC_BASE, TEMP_BASE } from "./constants.js";
+import {
+  ARITHMETIC_OPERATORS,
+  SEGMENT_BASE,
+  STATIC_BASE,
+  TEMP_BASE,
+} from "./constants.js";
 
 class VMTranslator {
   private vmFile: string = "";
@@ -15,7 +20,18 @@ class VMTranslator {
     this.push("push constant 5");
     this.push("push static 10");
     this.push("push local 10");
-    this.pop("pop argument 10");
+    this.arithmetic("add");
+    this.pop("pop static 10");
+    this.push("push static 10");
+    this.arithmetic("add");
+    this.pop("pop static 10");
+    this.push("push static 10");
+    this.arithmetic("add");
+    this.pop("pop static 10");
+    this.push("push static 10");
+    this.arithmetic("add");
+    // this.pop("pop argument 10");
+    // this.add();
     console.log("VM -> Assembly OUTPUT:\n", this.get_output());
   }
 
@@ -45,6 +61,9 @@ class VMTranslator {
     code += `D=A\n`;
     code += `@${init_memory_setter.label}\n`;
     code += `M=D\n`;
+    this.output.push(
+      `// ${init_memory_setter.label} = ${init_memory_setter.value}`,
+    );
     this.output.push(code);
     // NOTE: we do NOT push to global_stack here —
     // these are pointer registers, not stack values.
@@ -131,6 +150,7 @@ class VMTranslator {
     }
 
     console.log("Parsed push command:", { operation, segment, address });
+    this.output.push(`// ${operation} ${segment} ${address}`);
     this.output.push(code);
   }
 
@@ -193,6 +213,7 @@ class VMTranslator {
 
     this.global_stack.pop();
     console.log("Parsed pop command:", { operation, segment, address });
+    this.output.push(`// ${operation} ${segment} ${address}`);
     this.output.push(code);
   }
 
@@ -330,35 +351,49 @@ class VMTranslator {
   // ─────────────────────────────────────────────
 
   private arithmetic(command: string): void {
+    const _command = command.trim().split(" ");
+    if (!ARITHMETIC_OPERATORS[_command[0]!] || _command.length !== 1) {
+      throw new Error(`Invalid arithmetic command: ${command}`);
+    }
+
     let code = "";
 
     switch (command.trim()) {
       case "add":
         code = this.add();
+        this.output.push(`// add`);
         break;
       case "sub":
         code = this.sub();
+        this.output.push(`// sub`);
         break;
       case "neg":
         code = this.neg();
+        this.output.push(`// neg`);
         break;
       case "eq":
         code = this.eq();
+        this.output.push(`// eq`);
         break;
       case "gt":
         code = this.gt();
+        this.output.push(`// gt`);
         break;
       case "lt":
         code = this.lt();
+        this.output.push(`// lt`);
         break;
       case "and":
         code = this.and();
+        this.output.push(`// and`);
         break;
       case "or":
         code = this.or();
+        this.output.push(`// or`);
         break;
       case "not":
         code = this.not();
+        this.output.push(`// not`);
         break;
       default:
         throw new Error(`Unknown arithmetic/logical command: ${command}`);
