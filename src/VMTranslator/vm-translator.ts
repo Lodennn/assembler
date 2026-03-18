@@ -196,6 +196,177 @@ class VMTranslator {
     this.output.push(code);
   }
 
+  // ─────────────────────────────────────────────
+  // Drop these inside your VMTranslator class
+  // ─────────────────────────────────────────────
+
+  private label_counter: number = 0;
+
+  // ─────────────────────────────────────────────
+  // ARITHMETIC
+  // ─────────────────────────────────────────────
+
+  private add(): string {
+    let code = "";
+    code += `@SP\n`;
+    code += `AM=M-1\n`; // SP-- and point A to top
+    code += `D=M\n`; // D = top of stack (y)
+    code += `A=A-1\n`; // point to x (one below)
+    code += `M=D+M\n`; // RAM[SP-1] = x + y
+    return code;
+  }
+
+  private sub(): string {
+    let code = "";
+    code += `@SP\n`;
+    code += `AM=M-1\n`; // SP-- and point A to top
+    code += `D=M\n`; // D = top of stack (y)
+    code += `A=A-1\n`; // point to x (one below)
+    code += `M=M-D\n`; // RAM[SP-1] = x - y
+    return code;
+  }
+
+  private neg(): string {
+    let code = "";
+    code += `@SP\n`;
+    code += `A=M-1\n`; // point to top of stack (no SP change)
+    code += `M=-M\n`; // negate in place
+    return code;
+  }
+
+  // ─────────────────────────────────────────────
+  // COMPARISON
+  // ─────────────────────────────────────────────
+
+  private eq(): string {
+    const label = `END_EQ_${this.label_counter++}`;
+    let code = "";
+    code += `@SP\n`;
+    code += `AM=M-1\n`; // SP-- and point to y
+    code += `D=M\n`; // D = y
+    code += `A=A-1\n`; // point to x
+    code += `D=M-D\n`; // D = x - y
+    code += `M=0\n`; // assume false (0)
+    code += `@${label}\n`;
+    code += `D;JNE\n`; // if x != y, jump to end (stay false)
+    code += `@SP\n`;
+    code += `A=M-1\n`; // point back to result slot
+    code += `M=-1\n`; // set true (-1)
+    code += `(${label})\n`;
+    return code;
+  }
+
+  private gt(): string {
+    const label = `END_GT_${this.label_counter++}`;
+    let code = "";
+    code += `@SP\n`;
+    code += `AM=M-1\n`; // SP-- and point to y
+    code += `D=M\n`; // D = y
+    code += `A=A-1\n`; // point to x
+    code += `D=M-D\n`; // D = x - y
+    code += `M=0\n`; // assume false (0)
+    code += `@${label}\n`;
+    code += `D;JLE\n`; // if x <= y, jump to end (stay false)
+    code += `@SP\n`;
+    code += `A=M-1\n`; // point back to result slot
+    code += `M=-1\n`; // set true (-1)
+    code += `(${label})\n`;
+    return code;
+  }
+
+  private lt(): string {
+    const label = `END_LT_${this.label_counter++}`;
+    let code = "";
+    code += `@SP\n`;
+    code += `AM=M-1\n`; // SP-- and point to y
+    code += `D=M\n`; // D = y
+    code += `A=A-1\n`; // point to x
+    code += `D=M-D\n`; // D = x - y
+    code += `M=0\n`; // assume false (0)
+    code += `@${label}\n`;
+    code += `D;JGE\n`; // if x >= y, jump to end (stay false)
+    code += `@SP\n`;
+    code += `A=M-1\n`; // point back to result slot
+    code += `M=-1\n`; // set true (-1)
+    code += `(${label})\n`;
+    return code;
+  }
+
+  // ─────────────────────────────────────────────
+  // LOGICAL
+  // ─────────────────────────────────────────────
+
+  private and(): string {
+    let code = "";
+    code += `@SP\n`;
+    code += `AM=M-1\n`; // SP-- and point to y
+    code += `D=M\n`; // D = y
+    code += `A=A-1\n`; // point to x
+    code += `M=D&M\n`; // RAM[SP-1] = x & y
+    return code;
+  }
+
+  private or(): string {
+    let code = "";
+    code += `@SP\n`;
+    code += `AM=M-1\n`; // SP-- and point to y
+    code += `D=M\n`; // D = y
+    code += `A=A-1\n`; // point to x
+    code += `M=D|M\n`; // RAM[SP-1] = x | y
+    return code;
+  }
+
+  private not(): string {
+    let code = "";
+    code += `@SP\n`;
+    code += `A=M-1\n`; // point to top of stack (no SP change)
+    code += `M=!M\n`; // bitwise NOT in place
+    return code;
+  }
+
+  // ─────────────────────────────────────────────
+  // DISPATCHER — call this from your translate() method
+  // maps the VM command string to the right method
+  // ─────────────────────────────────────────────
+
+  private arithmetic(command: string): void {
+    let code = "";
+
+    switch (command.trim()) {
+      case "add":
+        code = this.add();
+        break;
+      case "sub":
+        code = this.sub();
+        break;
+      case "neg":
+        code = this.neg();
+        break;
+      case "eq":
+        code = this.eq();
+        break;
+      case "gt":
+        code = this.gt();
+        break;
+      case "lt":
+        code = this.lt();
+        break;
+      case "and":
+        code = this.and();
+        break;
+      case "or":
+        code = this.or();
+        break;
+      case "not":
+        code = this.not();
+        break;
+      default:
+        throw new Error(`Unknown arithmetic/logical command: ${command}`);
+    }
+
+    this.output.push(code);
+  }
+
   private get_output(): string {
     this.global_stack.print();
     return this.output.join("\n");
