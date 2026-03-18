@@ -1,7 +1,8 @@
 import ISA from "./ISA.js";
-import ignores from "./ignores.js";
+import ignores from "../reader/ignores.js";
 import type { CompKeys, DestKeys, JumpKeys, Operation } from "./types.js";
 import symbolTable from "./symbol-table.js";
+import Reader from "../reader/index.js";
 
 class Assembler {
   private machine_code_output: string[] = [];
@@ -10,6 +11,7 @@ class Assembler {
   private last_instruction_key: Operation | null = null;
   private last_instruction: string = "";
   private MAX_ADDRESS = 32768;
+  private reader: Reader = new Reader();
 
   private static instance: Assembler;
 
@@ -83,7 +85,7 @@ class Assembler {
   }
 
   private get_a_instruction_machine_code(instruction: string): string {
-    const _instruction = this.get_clean_instruction(instruction);
+    const _instruction = this.reader.get_clean_instruction(instruction);
 
     const value = _instruction.slice(1);
     let actual_value: string | number = value;
@@ -118,7 +120,7 @@ class Assembler {
     let jmp: JumpKeys = "null";
     let abit: 0 | 1 = 0;
 
-    const _instruction = this.get_clean_instruction(instruction);
+    const _instruction = this.reader.get_clean_instruction(instruction);
 
     const has_dest = _instruction.includes("=");
     const has_jump = _instruction.includes(";");
@@ -153,7 +155,7 @@ class Assembler {
   }
 
   private is_a_instruction(instruction: string): boolean {
-    const _instruction = this.get_clean_instruction(instruction);
+    const _instruction = this.reader.get_clean_instruction(instruction);
 
     return _instruction[0] === "@";
   }
@@ -163,31 +165,21 @@ class Assembler {
   }
 
   private get_first_composed_op(instruction: string): string {
-    const _instruction = this.get_clean_instruction(instruction);
+    const _instruction = this.reader.get_clean_instruction(instruction);
 
     const splittedOP = this.split_instruction(_instruction);
     return this.is_comment(_instruction) ? "//" : (splittedOP[0] ?? "");
   }
 
   private is_comment(instruction: string): boolean {
-    const _instruction = this.get_clean_instruction(instruction);
+    const _instruction = this.reader.get_clean_instruction(instruction);
     return _instruction.startsWith("//");
   }
 
-  private is_empty_instruction(instruction: string): boolean {
-    const _instruction = this.get_clean_instruction(instruction);
-    return !_instruction.length;
-  }
-
-  private should_be_ignored(instruction: string): boolean {
-    const _instruction = this.get_clean_instruction(instruction);
-    return ignores.includes(this.get_first_composed_op(_instruction));
-  }
-
   private is_illegal_instruction(instruction: string): boolean {
-    const _instruction = this.get_clean_instruction(instruction);
-
-    if (this.should_be_ignored(_instruction)) {
+    const _instruction = this.reader.get_clean_instruction(instruction);
+    const first_composed_op = this.get_first_composed_op(_instruction);
+    if (this.reader.should_be_ignored(first_composed_op)) {
       return false;
     } else if (
       !this.is_a_instruction(_instruction) &&
@@ -205,11 +197,11 @@ class Assembler {
   }
 
   private is_ignored_instruction(instruction: string): boolean {
-    const _instruction = this.get_clean_instruction(instruction);
-
+    const _instruction = this.reader.get_clean_instruction(instruction);
+    const first_composed_op = this.get_first_composed_op(_instruction);
     return (
-      this.is_empty_instruction(_instruction) ||
-      this.should_be_ignored(_instruction)
+      this.reader.is_empty_instruction(_instruction) ||
+      this.reader.should_be_ignored(first_composed_op)
     );
   }
 
@@ -222,14 +214,10 @@ class Assembler {
   }
 
   private is_label(instruction: string): boolean {
-    const _instruction = this.get_clean_instruction(instruction);
+    const _instruction = this.reader.get_clean_instruction(instruction);
     return (
       _instruction[0] === "(" && _instruction[_instruction.length - 1] === ")"
     );
-  }
-
-  private get_clean_instruction(instruction: string): string {
-    return instruction.trim().split(" ")[0] ?? instruction;
   }
 
   public getMachineCodeOutput(): string[] {
@@ -237,7 +225,7 @@ class Assembler {
   }
 
   private is_c_instruction(instruction: string): boolean {
-    const _instruction = this.get_clean_instruction(instruction);
+    const _instruction = this.reader.get_clean_instruction(instruction);
     if (!_instruction) return false;
 
     let dest = "null";
