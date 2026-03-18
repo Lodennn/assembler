@@ -7,29 +7,21 @@ import {
   STATIC_BASE,
   TEMP_BASE,
 } from "./constants.js";
+import dummy_vmFile from "./vm-file.js";
+import Reader from "../reader/index.js";
 
 class VMTranslator {
   private vmFile: string = "";
   private global_stack: GlobalStack = GlobalStack.getInstance();
   private memory_segments: MemorySegments = MemorySegments.getInstance();
   private output: string[] = [];
+  private reader: Reader = new Reader();
 
   constructor(vmFile: string) {
-    this.vmFile = vmFile;
+    this.vmFile = vmFile || dummy_vmFile;
     this.init_memory();
-    this.push("push constant 5");
-    this.push("push static 10");
-    this.push("push local 10");
-    this.arithmetic("add");
-    this.pop("pop static 10");
-    this.push("push static 10");
-    this.arithmetic("add");
-    this.pop("pop static 10");
-    this.push("push static 10");
-    this.arithmetic("add");
-    this.pop("pop static 10");
-    this.push("push static 10");
-    this.arithmetic("add");
+    this.translate();
+
     // this.pop("pop argument 10");
     // this.add();
     console.log("VM -> Assembly OUTPUT:\n", this.get_output());
@@ -50,6 +42,34 @@ class VMTranslator {
       { label: "THAT", address: 4, value: 3010 },
     ];
     init_code.forEach((setter) => this.set(setter));
+  }
+
+  public translate() {
+    this.vmFile.split("\n").forEach((command) => {
+      const operator = command.trim().split(" ")[0] || "";
+      if (this.reader.should_be_ignored(operator)) {
+        // ignore
+      } else {
+        if (operator === "push") {
+          this.push(command);
+        } else if (operator === "pop") {
+          this.pop(command);
+        } else if (operator && ARITHMETIC_OPERATORS[operator]) {
+          if (this.global_stack.is_empty()) {
+            throw new Error(`Stack is empty: ${command}`);
+          }
+          if (operator !== "neg" && this.global_stack.get_stack_size() < 2) {
+            throw new Error(
+              `Not enough items on the stack to perform arithmetic operation: ${operator}`,
+            );
+          }
+          this.arithmetic(command);
+        } else {
+          throw new Error(`Invalid operator: ${operator}`);
+        }
+        // this.translate_command(command);
+      }
+    });
   }
 
   private set(init_memory_setter: TInitMemorySetter) {

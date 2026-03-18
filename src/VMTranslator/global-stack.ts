@@ -29,6 +29,14 @@ class GlobalStack {
     return this.stack.pop()!;
   }
 
+  public get_stack_size(): number {
+    return this.stack.length;
+  }
+
+  public is_empty(): boolean {
+    return this.stack.length === 0;
+  }
+
   public print() {
     const stackCopy = [...this.stack].reverse();
     // SP always points to the NEXT free slot, so SP = 256 + stack.length
