@@ -7,3 +7,8 @@ type JumpKeys = keyof typeof ISA.C_INSTRUCTION.jump;
 type Operation = "A" | "C";
 
 export type { DestKeys, CompKeys, JumpKeys, Operation };
+
+export enum OperationEnum {
+  A = "A",
+  C = "C",
+}

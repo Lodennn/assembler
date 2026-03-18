@@ -1,8 +1,8 @@
 import ISA from "./ISA.js";
-import ignores from "../reader/ignores.js";
 import type { CompKeys, DestKeys, JumpKeys, Operation } from "./types.js";
 import symbolTable from "./symbol-table.js";
 import Reader from "../reader/index.js";
+import { OperationEnum } from "./types.js";
 
 class Assembler {
   private machine_code_output: string[] = [];
@@ -40,10 +40,10 @@ class Assembler {
         // ignore
       } else {
         if (this.is_a_instruction(instruction)) {
-          this.last_instruction_key = "A";
+          this.last_instruction_key = OperationEnum.A;
           this.last_instruction = instruction;
         } else {
-          this.last_instruction_key = "C";
+          this.last_instruction_key = OperationEnum.C;
           this.last_instruction = instruction.split(" ")[0] ?? instruction;
         }
         const machine_code = this.get_machine_code(this.last_instruction);
@@ -189,7 +189,7 @@ class Assembler {
       return true;
     } else if (
       this.is_a_instruction(_instruction) &&
-      this.last_instruction_key === "A"
+      this.last_instruction_key === OperationEnum.A
     ) {
       return true;
     }

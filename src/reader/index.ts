@@ -1,4 +1,4 @@
-import ignores from "./ignores";
+import ignores from "./ignores.js";
 
 class Reader {
   constructor() {}
