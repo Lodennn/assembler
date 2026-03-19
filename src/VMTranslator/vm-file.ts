@@ -1,7 +1,7 @@
 export default `
-// push constant 5
+. push constant 5
 push static 10
-neg
+// neg
 // push local 10
 // add
 // pop static 10

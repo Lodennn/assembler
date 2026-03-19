@@ -10,13 +10,24 @@ ul {
   list-style: none;
 }
 
+:root {
+  --bg-top-lightness: 48%;
+  --bg-bottom-lightness: 38%;
+}
+
 body {
   font-family: "Datatype", monospace;
   font-optical-sizing: auto;
   font-weight: 400;
   font-style: normal;
   font-variation-settings: "wdth" 100;
-  background-color: #27ae60;
+  background-image: linear-gradient(
+    180deg,
+    hsl(145 63% var(--bg-top-lightness)) 0%,
+    hsl(145 63% var(--bg-bottom-lightness)) 100%
+  );
+  background-attachment: fixed;
+  transition: background-image 0.15s linear;
 }
 
 .container {
@@ -60,6 +71,12 @@ body {
   }
 }
 
+#vm-translator,
+#assembler,
+#machine-code-section {
+  margin-bottom: 5rem;
+}
+
 main {
   margin-block: 2rem;
 }
@@ -74,20 +91,31 @@ main p {
   font-weight: 300;
 }
 
-.main {
+.main,
+.vm-main {
   margin-top: 3rem;
   display: grid;
-  grid-template-columns: 1fr 300px;
   gap: 1rem;
+}
+
+.main {
+  /* grid-template-columns: 1fr 300px; */
+  /* grid-template-rows: 1fr min-content; */
+}
+
+.vm-main {
+  /* grid-template-columns: 1fr; */
+  /* grid-template-rows: 1fr min-content; */
 }
 
 .main .main-cols {
 }
 
-.main textarea {
+.main textarea,
+.vm-main textarea {
   width: 100%;
-  height: 30rem;
-  max-height: 30rem;
+  height: 100%;
+  /* max-height: 30rem; */
   background-color: #2ecc71;
   outline: none;
   padding: 5px;
@@ -123,7 +151,8 @@ main p {
   transform: translateY(-5px);
 }
 
-.main [data-action="assemble"] {
+.main [data-action="assemble"],
+.vm-main [data-action="translate"] {
   background-color: #2ecc71;
   border: none;
   padding: 1rem;
@@ -134,6 +163,7 @@ main p {
 
 .machine-code {
   margin-top: 2rem;
+  min-height: 100vh;
 }
 
 .machine-code h2 {
@@ -152,8 +182,9 @@ main p {
 .machine-code .output {
   background-color: #2ecc71;
   overflow-y: scroll;
-  height: 30rem;
-  max-height: 30rem;
+  height: 40rem;
+  max-height: 40rem;
+  margin-bottom: 3rem;
   white-space: pre;
 }
 
@@ -163,11 +194,46 @@ main p {
   border: 2px solid #a93226;
 }
 
-.main [data-action="clear"] {
+.main [data-action="clear"],
+.vm-main [data-action="clear"] {
   background-color: #2ecc71;
   border: none;
   padding: 1rem;
   border-radius: 5px;
   font-size: 1.2rem;
   cursor: pointer;
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  > button:first-of-type {
+    flex-grow: 2;
+  }
+  > button:last-of-type {
+    flex-grow: 1;
+    background-color: #145a32;
+    border: 1px solid #0d3f23;
+    color: white;
+    transition: all 0.3s ease;
+  }
+  > button:last-of-type:hover {
+    background-color: #0f4728;
+  }
+}
+
+.assembler-main {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 1rem;
+  min-height: 30rem;
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vm-main-col textarea {
+  min-height: 30rem;
 }

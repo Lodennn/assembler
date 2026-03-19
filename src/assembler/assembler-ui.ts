@@ -14,6 +14,7 @@ const SAMPLES: Record<SampleId, string> = {
 };
 
 class AssemblerUI {
+  private rootEl: HTMLElement | null = null;
   private textarea: HTMLTextAreaElement | null = null;
   private resultEl: HTMLElement | null = null;
   private outputEl: HTMLElement | null = null;
@@ -22,21 +23,22 @@ class AssemblerUI {
   private samples: Record<SampleId, string> = SAMPLES;
 
   constructor() {
-    this.textarea = document.getElementById(
-      "code",
-    ) as HTMLTextAreaElement | null;
+    this.rootEl = document.getElementById("assembler");
+    if (!this.rootEl) return;
+    this.textarea = this.rootEl.querySelector<HTMLTextAreaElement>("#code");
     this.resultEl = document.getElementById("machine-code-result");
     this.outputEl = document.getElementById("machine-code-output");
     this.errorEl = document.getElementById("machine-code-error");
     this.sectionEl = document.getElementById("machine-code-section");
-    if (!this.textarea) return;
+    if (!this.textarea || !this.resultEl || !this.outputEl || !this.errorEl || !this.sectionEl) return;
     this.bindSampleButtons();
     this.bindAssembleButton();
     this.bindClearButton();
   }
 
   private bindSampleButtons(): void {
-    const buttons = document.querySelectorAll<HTMLElement>("[data-sample]");
+    const buttons =
+      this.rootEl?.querySelectorAll<HTMLElement>("[data-sample]") ?? [];
     buttons.forEach((el) => {
       const sampleId = el.getAttribute("data-sample") as SampleId | null;
       if (sampleId && sampleId in this.samples) {
@@ -49,13 +51,15 @@ class AssemblerUI {
   }
 
   private bindAssembleButton(): void {
-    const btn = document.querySelector<HTMLElement>('[data-action="assemble"]');
+    const btn = this.rootEl?.querySelector<HTMLElement>(
+      '[data-action="assemble"]',
+    );
     if (!btn) return;
     btn.addEventListener("click", () => this.onAssemble());
   }
 
   private bindClearButton(): void {
-    const btn = document.querySelector<HTMLElement>('[data-action="clear"]');
+    const btn = this.rootEl?.querySelector<HTMLElement>('[data-action="clear"]');
     if (!btn) return;
     btn.addEventListener("click", () => this.onClear());
   }

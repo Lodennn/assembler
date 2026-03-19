@@ -14,26 +14,51 @@
   </head>
   <body>
     <main class="container">
-      <h1>Assembler</h1>
-      <p>get ready to see your machine code</p>
-      <section class="main">
-        <div class="main-col">
-          <textarea
-            name="code"
-            id="code"
-            cols="30"
-            rows="10"
-            placeholder="// Enter your assembly code here"
-          ></textarea>
-        </div>
-        <ul class="code-cols">
-          <li data-sample="sum"><span>Add</span></li>
-          <li data-sample="max"><span>Max</span></li>
-          <li data-sample="multi"><span>Multiplication</span></li>
-          <li data-sample="rectangle"><span>Rectangle</span></li>
-        </ul>
-        <button data-action="assemble">Assemble</button>
-        <button data-action="clear">Clear</button>
+      <section id="vm-translator">
+        <h1>VM Translator</h1>
+        <p>get ready to see your Assembly code</p>
+        <section class="vm-main">
+          <div class="vm-main-col">
+            <textarea
+              name="vm-code"
+              id="vm-code"
+              cols="30"
+              rows="10"
+              placeholder="// Enter your VM code here"
+            ></textarea>
+          </div>
+          <div class="controls">
+            <button data-action="translate">Translate</button>
+            <button data-action="clear">Clear</button>
+          </div>
+        </section>
+      </section>
+      <section id="assembler">
+        <h1>Assembler</h1>
+        <p>get ready to see your machine code</p>
+        <section class="main">
+          <div class="assembler-main">
+            <div class="main-col">
+              <textarea
+                name="code"
+                id="code"
+                cols="30"
+                rows="10"
+                placeholder="// Enter your assembly code here"
+              ></textarea>
+            </div>
+            <ul class="code-cols">
+              <li data-sample="sum"><span>Add</span></li>
+              <li data-sample="max"><span>Max</span></li>
+              <li data-sample="multi"><span>Multiplication</span></li>
+              <li data-sample="rectangle"><span>Rectangle</span></li>
+            </ul>
+          </div>
+          <div class="controls">
+            <button data-action="assemble">Assemble</button>
+            <button data-action="clear">Clear</button>
+          </div>
+        </section>
       </section>
       <section
         class="machine-code"
@@ -41,7 +66,8 @@
         aria-live="polite"
       >
         <div class="machine-code-result" id="machine-code-result" hidden>
-          <h2>Machine Code</h2>
+          <h1>Machine Code</h1>
+          <p>and finally, your machine code</p>
           <div class="output" id="machine-code-output"></div>
         </div>
         <div

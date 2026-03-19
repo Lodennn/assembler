@@ -39,3 +39,15 @@ export const ARITHMETIC_OPERATORS: Record<string, boolean> = {
 
 export const TEMP_BASE = 5;
 export const STATIC_BASE = 16;
+
+export const BRANCHING_OPERATORS: Record<string, boolean> = {
+  label: true,
+  goto: true,
+  "if-goto": true,
+};
+
+export const FUNCTION_OPERATORS: Record<string, boolean> = {
+  function: true,
+  call: true,
+  return: true,
+};
