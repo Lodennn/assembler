@@ -186,8 +186,8 @@ main p {
 }
 
 .machine-code-result:not([hidden]) .output {
-  height: 40rem;
-  max-height: 40rem;
+  height: 35rem;
+  max-height: 35rem;
   margin-bottom: 3rem;
 }
 
