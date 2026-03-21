@@ -14,18 +14,27 @@
   </head>
   <body>
     <main class="container">
+      <!-- VM Translator Section -->
       <section id="vm-translator">
         <h1>VM Translator</h1>
         <p>get ready to see your Assembly code</p>
         <section class="vm-main">
-          <div class="vm-main-col">
-            <textarea
-              name="vm-code"
-              id="vm-code"
-              cols="30"
-              rows="10"
-              placeholder="// Enter your VM code here"
-            ></textarea>
+          <div class="assembler-main">
+            <div class="main-col">
+              <textarea
+                name="vm-code"
+                id="vm-code"
+                cols="30"
+                rows="10"
+                placeholder="// Enter your VM code here"
+              ></textarea>
+            </div>
+            <ul class="code-cols">
+              <li data-vm-sample="sum"><span>Add</span></li>
+              <li data-vm-sample="max"><span>Max</span></li>
+              <li data-vm-sample="multi"><span>Multiplication</span></li>
+              <li data-vm-sample="rectangle"><span>Rectangle</span></li>
+            </ul>
           </div>
           <div class="controls">
             <button data-action="translate">Translate</button>
@@ -33,6 +42,7 @@
           </div>
         </section>
       </section>
+      <!-- Assembler Section -->
       <section id="assembler">
         <h1>Assembler</h1>
         <p>get ready to see your machine code</p>
@@ -60,6 +70,7 @@
           </div>
         </section>
       </section>
+      <!-- Machine Code Section -->
       <section
         class="machine-code"
         id="machine-code-section"

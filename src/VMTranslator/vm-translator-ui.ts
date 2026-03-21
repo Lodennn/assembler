@@ -1,4 +1,5 @@
 import VMTranslator from "./vm-translator.js";
+import { VM_SAMPLES, type VMSampleId } from "./vm-samples.js";
 
 class VMTranslatorUI {
   private rootEl: HTMLElement | null = null;
@@ -6,6 +7,7 @@ class VMTranslatorUI {
   private assemblerTextarea: HTMLTextAreaElement | null = null;
   private assemblerSection: HTMLElement | null = null;
   private errorEl: HTMLElement | null = null;
+  private samples: Record<VMSampleId, string> = VM_SAMPLES;
 
   constructor() {
     this.rootEl = document.getElementById("vm-translator");
@@ -17,6 +19,7 @@ class VMTranslatorUI {
     if (!this.rootEl || !this.vmTextarea || !this.assemblerTextarea) return;
     this.bindTranslateButton();
     this.bindClearButton();
+    this.bindVMSampleButtons();
   }
 
   private bindTranslateButton(): void {
@@ -29,6 +32,25 @@ class VMTranslatorUI {
     const btn = this.rootEl?.querySelector<HTMLElement>('[data-action="clear"]');
     if (!btn) return;
     btn.addEventListener("click", () => this.onClear());
+  }
+
+  private bindVMSampleButtons(): void {
+    const buttons = document.querySelectorAll<HTMLElement>("[data-vm-sample]");
+    buttons.forEach((el) => {
+      const id = el.getAttribute("data-vm-sample") as VMSampleId | null;
+      if (id && id in this.samples) {
+        el.addEventListener("click", (e) => {
+          e.preventDefault();
+          this.loadVMSample(id);
+        });
+      }
+    });
+  }
+
+  private loadVMSample(id: VMSampleId): void {
+    if (!this.vmTextarea) return;
+    this.vmTextarea.value = this.samples[id];
+    this.clearError();
   }
 
   private onTranslate(): void {

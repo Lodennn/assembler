@@ -151,6 +151,21 @@ main p {
   margin-top: 2rem;
 }
 
+.machine-code-samples {
+  margin-bottom: 2rem;
+}
+
+.machine-code-samples-label {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  opacity: 0.95;
+}
+
+.machine-code-samples .code-cols {
+  max-width: 300px;
+}
+
 .machine-code h2 {
   font-size: 2rem;
   font-weight: 900;
@@ -222,6 +237,6 @@ main p {
   }
 }
 
-.vm-main-col textarea {
+#vm-translator .assembler-main .main-col textarea {
   min-height: 30rem;
 }
