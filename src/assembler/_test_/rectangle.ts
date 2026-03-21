@@ -32,4 +32,4 @@ D;JGT    // if counter > 0, repeat
 
 (END)
 @END
-0;JMP`;
+0;JMP        // infinite loop (end of program)`;

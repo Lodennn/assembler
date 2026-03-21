@@ -18,4 +18,4 @@ D=M              // D = first number
 M=D              // R2 = max(R0, R1)
 (END)
 @END
-0;JMP            // infinite loop`;
+0;JMP        // infinite loop (end of program)`;
