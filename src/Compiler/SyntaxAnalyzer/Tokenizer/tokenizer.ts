@@ -10,14 +10,11 @@ class Tokenizer implements ITokenizer {
   private tokenizerOutput: string[] = [];
   private output: string = "";
   constructor(highLevelLanguageFile: string) {
-    // read the high level language file
     this.clean(highLevelLanguageFile);
     const output = this.tokenizeHighLevelLanguageFile(
       this.cleanHighLevelLanguageFile,
     );
     this.output = output;
-    console.log("=== OUTPUT ===");
-    console.log(this.output);
   }
 
   private clean(highLevelLanguageFile: string): void {
@@ -80,9 +77,6 @@ class Tokenizer implements ITokenizer {
     }
     this.cleanHighLevelLanguageFile = cleanLines.join("\n");
 
-    console.log("=== CLEAN SOURCE ===");
-    console.log(this.cleanHighLevelLanguageFile);
-
     this.tokenizerStackReader.empty();
   }
 
@@ -93,22 +87,16 @@ class Tokenizer implements ITokenizer {
       return line.split(" ");
     });
 
-    // console.log("TOKENS: ", tokens);
     tokens.forEach((token) => {
-      // console.log("TOKEN: ", token);
       token.forEach((t) => {
-        // console.log("T: ", t);
         let current_token: string = "";
         for (let i = 0; i < t.length; i++) {
           const current_char = t[i]!;
-          // console.log("current_char: ", current_char);
           current_token += current_char;
           if (this.is_empty(current_char) || this.is_empty(current_token)) {
             continue;
           }
-          // console.log("CURRENT TOKEN: ", current_token);
           if (this.is_symbol(current_char)) {
-            // `10)` → integer then `)`; `main(` → identifier then `(`
             if (this.is_number(t[i - 1]!)) {
               this.pushTagged(current_token.slice(0, -1));
               this.pushTagged(current_char);
@@ -136,11 +124,8 @@ class Tokenizer implements ITokenizer {
           this.pushTagged(current_token);
           current_token = "";
         }
-        // console.log("CURRENT TOKEN: ", current_token);
       });
     });
-    console.log("=== TOKENIZED OUTPUT ===");
-    console.log(this.tokenizerOutput);
     return `<tokens>\n${this.tokenizerOutput.join("\n")}\n</tokens>`;
   }
 
