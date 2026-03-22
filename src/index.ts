@@ -1,5 +1,7 @@
+import Tokenizer from "./Compiler/SyntaxAnalyzer/Tokenizer/tokenizer.js";
 import VMTranslatorUI from "./VMTranslator/vm-translator-ui.js";
 import AssemblerUI from "./assembler/assembler-ui.js";
+import HighLevelTestCode from "./Compiler/SyntaxAnalyzer/Tokenizer/_test_/index.js";
 
 function updateScrollBackground(): void {
   const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
@@ -27,6 +29,7 @@ function bindScrollBackground(): void {
 function init() {
   new AssemblerUI();
   new VMTranslatorUI();
+  new Tokenizer(HighLevelTestCode);
   bindScrollBackground();
 }
 
