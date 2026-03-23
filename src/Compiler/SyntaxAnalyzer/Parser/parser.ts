@@ -10,12 +10,11 @@ class Parser implements IParser {
   private constructor(tokenizer: Tokenizer) {
     this.tokenizer = tokenizer;
     this.parse();
-    console.log("===PARSER OUTPUT===");
-    console.log(this.writeOutput());
   }
 
   static getInstance(tokenizer: Tokenizer): Parser {
-    if (!Parser.instance) Parser.instance = new Parser(tokenizer);
+    // Re-parse every time so UI can parse arbitrary code on demand.
+    Parser.instance = new Parser(tokenizer);
     return Parser.instance;
   }
 
@@ -487,6 +486,11 @@ class Parser implements IParser {
 
   private writeOutput(): void {
     console.log(this.output);
+  }
+
+  /** Parsed XML tree produced by the parser. */
+  public getOutput(): string {
+    return this.output;
   }
 }
 

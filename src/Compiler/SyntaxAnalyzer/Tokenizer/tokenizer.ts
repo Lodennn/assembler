@@ -26,10 +26,14 @@ class Tokenizer implements ITokenizer {
     console.log(this.tokenizerOutput.join("\n"));
   }
   static getInstance(highLevelLanguageFile: string): Tokenizer {
-    if (!Tokenizer.instance) {
-      Tokenizer.instance = new Tokenizer(highLevelLanguageFile);
-    }
+    // Re-tokenize every time so UI can analyze arbitrary code on demand.
+    Tokenizer.instance = new Tokenizer(highLevelLanguageFile);
     return Tokenizer.instance;
+  }
+
+  /** `<tokens>...</tokens>` XML (one line per token element). */
+  public getTokensOutput(): string {
+    return this.tokenizerOutput.join("\n");
   }
 
   private clean(highLevelLanguageFile: string): void {
@@ -219,6 +223,14 @@ class Tokenizer implements ITokenizer {
       throw new Error("No current token (end of stream or past advance)");
     }
     return this.tokenRecords[this.currentIndex]!;
+  }
+
+  /**
+   * Reset tokenizer cursor so the parser can run again on the same token stream.
+   * Useful when re-clicking "Parse" without re-running "Analyze".
+   */
+  public resetCursor(): void {
+    this.currentIndex = 0;
   }
 
   private is_keyword(token: string): boolean {

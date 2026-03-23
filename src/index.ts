@@ -1,7 +1,6 @@
-import SyntaxAnalyzer from "./Compiler/SyntaxAnalyzer/index.js";
 import VMTranslatorUI from "./VMTranslator/vm-translator-ui.js";
 import AssemblerUI from "./assembler/assembler-ui.js";
-import HighLevelTestCode from "./Compiler/SyntaxAnalyzer/_test_/index.js";
+import SyntaxAnalyzerUI from "./Compiler/syntax-analyzer-ui.js";
 
 function updateScrollBackground(): void {
   const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
@@ -27,9 +26,9 @@ function bindScrollBackground(): void {
 }
 
 function init() {
+  new SyntaxAnalyzerUI();
   new AssemblerUI();
   new VMTranslatorUI();
-  SyntaxAnalyzer.getInstance(HighLevelTestCode);
   bindScrollBackground();
 }
 

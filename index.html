@@ -15,11 +15,54 @@
   <body>
     <main class="container">
       <!-- High Level Language Section -->
-      <!-- High Level Language Section -->
-      <!-- Compiler Section -->
-      <!-- Tokenizer Section -->
-      <!-- Tokenizer Section -->
-      <!-- Compiler Section -->
+      <section id="high-level">
+        <h1>High Level Language</h1>
+        <p>Write your Jack code, then click Analyze to tokenize it.</p>
+        <section class="main hl-main">
+          <div class="assembler-main">
+            <div class="main-col">
+              <textarea
+                id="high-level-code"
+                name="high-level-code"
+                cols="30"
+                rows="10"
+                spellcheck="false"
+                placeholder="// Enter your Jack code here"
+              ></textarea>
+            </div>
+            <ul class="code-cols">
+              <li data-hl-sample="sum"><span>Add</span></li>
+              <li data-hl-sample="max"><span>Max</span></li>
+              <li data-hl-sample="multi"><span>Multiplication</span></li>
+              <li data-hl-sample="rectangle"><span>Rectangle</span></li>
+            </ul>
+          </div>
+          <div class="controls">
+            <button type="button" data-action="analyze">Analyze</button>
+            <button type="button" data-action="clear-high-level">Clear</button>
+          </div>
+        </section>
+      </section>
+
+      <!-- Syntax Analyzer Section -->
+      <section id="syntax-analyzer" aria-live="polite">
+        <h1>Syntax Analyzer</h1>
+        <p>Tokenizer output first, then parse it into a syntax tree.</p>
+
+        <section class="main syntax-stage" id="tokenizer-stage">
+          <h2>Tokenizer</h2>
+          <pre class="output" id="tokenizer-output"></pre>
+          <div class="controls">
+            <button type="button" data-action="parse">Parse</button>
+          </div>
+        </section>
+
+        <section class="main syntax-stage" id="parser-stage">
+          <h2>Parser</h2>
+          <pre class="output" id="parser-output"></pre>
+        </section>
+      </section>
+
       <!-- VM Translator Section -->
       <section id="vm-translator">
         <h1>VM Translator</h1>

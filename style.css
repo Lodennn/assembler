@@ -73,7 +73,9 @@ body {
 
 #vm-translator,
 #assembler,
-#machine-code-section {
+#machine-code-section,
+#high-level,
+#syntax-analyzer {
   margin-bottom: 5rem;
 }
 
@@ -99,6 +101,7 @@ main p {
 }
 
 .main textarea,
+.syntax-analyzer-grid textarea,
 .vm-main textarea {
   width: 100%;
   height: 100%;
@@ -138,7 +141,9 @@ main p {
 }
 
 .main [data-action="assemble"],
-.vm-main [data-action="translate"] {
+.vm-main [data-action="translate"],
+#high-level [data-action="analyze"],
+#syntax-analyzer [data-action="parse"] {
   background-color: #2ecc71;
   border: none;
   padding: 1rem;
@@ -197,8 +202,31 @@ main p {
   border: 2px solid #a93226;
 }
 
+/* Syntax analyzer outputs */
+#syntax-analyzer .output {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 5px;
+  font-size: 1.1rem;
+  background-color: #2ecc71;
+  overflow-y: auto;
+  white-space: pre;
+  word-break: break-word;
+  min-height: 30rem;
+  max-height: 35rem;
+}
+
+#high-level .hl-main {
+  min-height: 30rem;
+}
+
+#high-level .hl-main textarea {
+  min-height: 30rem;
+}
+
 .main [data-action="clear"],
-.vm-main [data-action="clear"] {
+.vm-main [data-action="clear"],
+#high-level [data-action="clear-high-level"] {
   background-color: #2ecc71;
   border: none;
   padding: 1rem;
@@ -217,14 +245,21 @@ main p {
   }
   > button:last-of-type {
     flex-grow: 1;
-    background-color: #145a32;
-    border: 1px solid #0d3f23;
-    color: white;
-    transition: all 0.3s ease;
   }
-  > button:last-of-type:hover {
-    background-color: #0f4728;
-  }
+}
+
+/* Make "clear" buttons darker, but only for clear actions. */
+#high-level .controls > button[data-action="clear-high-level"],
+.controls > button[data-action="clear"] {
+  background-color: #145a32;
+  border: 1px solid #0d3f23;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+#high-level .controls > button[data-action="clear-high-level"]:hover,
+.controls > button[data-action="clear"]:hover {
+  background-color: #0f4728;
 }
 
 .assembler-main {
