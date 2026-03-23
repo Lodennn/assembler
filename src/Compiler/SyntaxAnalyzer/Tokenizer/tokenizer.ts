@@ -3,7 +3,6 @@ import { IGNORES, KEYWORDS, SYMBOLS } from "./constants.js";
 import { TokenType, type TokenRecord } from "./types.js";
 import TokenizerStackReader from "./TokenizerStackReader.js";
 import CommentReader from "./comment.js";
-import Parser from "../Parser/parser.js";
 
 class Tokenizer implements ITokenizer {
   /** Newline-delimited cleaned source (comments stripped). */
@@ -14,15 +13,23 @@ class Tokenizer implements ITokenizer {
   /** Cursor: index of the *current* token (0 .. length-1). */
   private currentIndex = 0;
   private tokenizerOutput: string[] = [];
-  private output: string = "";
+  private static instance: Tokenizer;
 
-  constructor(highLevelLanguageFile: string) {
+  private constructor(highLevelLanguageFile: string) {
     this.clean(highLevelLanguageFile);
-    this.output = this.tokenizeHighLevelLanguageFile(
-      this.cleanHighLevelLanguageFile,
-    );
-
-    Parser.getInstance(this);
+    this.tokenizeHighLevelLanguageFile(this.cleanHighLevelLanguageFile);
+    console.log("===HIGH LEVEL LANGUAGE FILE===");
+    console.log(highLevelLanguageFile);
+    console.log("===CLEAN HIGH LEVEL LANGUAGE FILE===");
+    console.log(this.cleanHighLevelLanguageFile);
+    console.log("===TOKENIZER OUTPUT===");
+    console.log(this.tokenizerOutput.join("\n"));
+  }
+  static getInstance(highLevelLanguageFile: string): Tokenizer {
+    if (!Tokenizer.instance) {
+      Tokenizer.instance = new Tokenizer(highLevelLanguageFile);
+    }
+    return Tokenizer.instance;
   }
 
   private clean(highLevelLanguageFile: string): void {
@@ -90,10 +97,12 @@ class Tokenizer implements ITokenizer {
 
   private tokenizeHighLevelLanguageFile(
     cleanHighLevelLanguageFile: string,
-  ): string {
+  ): void {
     this.tokenRecords = [];
     this.tokenizerOutput = [];
     this.currentIndex = 0;
+
+    this.tokenizerOutput.push("<tokens>");
 
     const linesWords = cleanHighLevelLanguageFile.split("\n").map((line) => {
       return line.split(" ");
@@ -138,7 +147,7 @@ class Tokenizer implements ITokenizer {
         }
       });
     });
-    return `<tokens>\n${this.tokenizerOutput.join("\n")}\n</tokens>`;
+    this.tokenizerOutput.push("</tokens>");
   }
 
   private is_empty(char: string): boolean {

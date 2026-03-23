@@ -1,4 +1,4 @@
-import type { TokenType } from "./types";
+import type { TokenRecord, TokenType } from "./types";
 
 interface ITokenizer {
   // → move to next token
@@ -17,6 +17,8 @@ interface ITokenizer {
   intVal(): string;
   // → returns value if current token is STRING_CONST
   stringVal(): string;
+  // → returns the current token record
+  getCurrentRecord(): TokenRecord;
 }
 
 export type { ITokenizer };
