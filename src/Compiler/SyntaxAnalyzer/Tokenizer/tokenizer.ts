@@ -1,20 +1,28 @@
 import type { ITokenizer } from "./tokenizer.interface.js";
 import { IGNORES, KEYWORDS, SYMBOLS } from "./constants.js";
-import { TokenType } from "./types.js";
+import { TokenType, type TokenRecord } from "./types.js";
 import TokenizerStackReader from "./TokenizerStackReader.js";
 import CommentReader from "./comment.js";
+import Parser from "../Parser/parser.js";
+
 class Tokenizer implements ITokenizer {
   /** Newline-delimited cleaned source (comments stripped). */
   private cleanHighLevelLanguageFile: string = "";
   private tokenizerStackReader = new TokenizerStackReader();
+  /** Course-style token stream (cursor over this). */
+  private tokenRecords: TokenRecord[] = [];
+  /** Cursor: index of the *current* token (0 .. length-1). */
+  private currentIndex = 0;
   private tokenizerOutput: string[] = [];
   private output: string = "";
+
   constructor(highLevelLanguageFile: string) {
     this.clean(highLevelLanguageFile);
-    const output = this.tokenizeHighLevelLanguageFile(
+    this.output = this.tokenizeHighLevelLanguageFile(
       this.cleanHighLevelLanguageFile,
     );
-    this.output = output;
+
+    Parser.getInstance(this);
   }
 
   private clean(highLevelLanguageFile: string): void {
@@ -83,12 +91,16 @@ class Tokenizer implements ITokenizer {
   private tokenizeHighLevelLanguageFile(
     cleanHighLevelLanguageFile: string,
   ): string {
-    const tokens = cleanHighLevelLanguageFile.split("\n").map((line) => {
+    this.tokenRecords = [];
+    this.tokenizerOutput = [];
+    this.currentIndex = 0;
+
+    const linesWords = cleanHighLevelLanguageFile.split("\n").map((line) => {
       return line.split(" ");
     });
 
-    tokens.forEach((token) => {
-      token.forEach((t) => {
+    linesWords.forEach((lineWords) => {
+      lineWords.forEach((t) => {
         let current_token: string = "";
         for (let i = 0; i < t.length; i++) {
           const current_char = t[i]!;
@@ -133,29 +145,71 @@ class Tokenizer implements ITokenizer {
     return char === "";
   }
 
-  advance(): void {
-    throw new Error("Method not implemented.");
-  }
   hasMoreTokens(): boolean {
-    throw new Error("Method not implemented.");
+    return this.currentIndex < this.tokenRecords.length;
   }
+
+  advance(): void {
+    if (this.hasMoreTokens()) {
+      this.currentIndex++;
+    }
+  }
+
   tokenType(): TokenType {
-    throw new Error("Method not implemented.");
+    return this.getCurrentRecord().type;
   }
+
   keyWord(): string {
-    throw new Error("Method not implemented.");
+    const r = this.getCurrentRecord();
+    if (r.type !== TokenType.KEYWORD) {
+      throw new Error("keyWord() called when current token is not a KEYWORD");
+    }
+    return r.lexeme;
   }
+
   symbol(): string {
-    throw new Error("Method not implemented.");
+    const r = this.getCurrentRecord();
+    if (r.type !== TokenType.SYMBOL) {
+      throw new Error("symbol() called when current token is not a SYMBOL");
+    }
+    return r.lexeme;
   }
+
   identifier(): string {
-    throw new Error("Method not implemented.");
+    const r = this.getCurrentRecord();
+    if (r.type !== TokenType.IDENTIFIER) {
+      throw new Error(
+        "identifier() called when current token is not an IDENTIFIER",
+      );
+    }
+    return r.lexeme;
   }
+
   intVal(): string {
-    throw new Error("Method not implemented.");
+    const r = this.getCurrentRecord();
+    if (r.type !== TokenType.INTEGER_CONST) {
+      throw new Error(
+        "intVal() called when current token is not an INTEGER_CONST",
+      );
+    }
+    return r.lexeme;
   }
+
   stringVal(): string {
-    throw new Error("Method not implemented.");
+    const r = this.getCurrentRecord();
+    if (r.type !== TokenType.STRING_CONST) {
+      throw new Error(
+        "stringVal() called when current token is not a STRING_CONST",
+      );
+    }
+    return r.lexeme;
+  }
+
+  public getCurrentRecord(): TokenRecord {
+    if (this.currentIndex >= this.tokenRecords.length) {
+      throw new Error("No current token (end of stream or past advance)");
+    }
+    return this.tokenRecords[this.currentIndex]!;
   }
 
   private is_keyword(token: string): boolean {
@@ -177,30 +231,64 @@ class Tokenizer implements ITokenizer {
     return token === " ";
   }
 
-  private tokenize(token: string): string {
-    if (this.is_keyword(token)) {
-      return `<${TokenType.KEYWORD.toLowerCase()}>${token}</${TokenType.KEYWORD.toLowerCase()}>`;
-    } else if (this.is_symbol(token)) {
-      return `<${TokenType.SYMBOL.toLowerCase()}>${token}</${TokenType.SYMBOL.toLowerCase()}>`;
-    } else if (this.is_identifier(token)) {
-      return `<${TokenType.IDENTIFIER.toLowerCase()}>${token}</${TokenType.IDENTIFIER.toLowerCase()}>`;
-    } else if (this.is_number(token)) {
-      const tokenType = "integerConstant";
-      return `<${tokenType}>${token}</${tokenType}>`;
-    } else if (this.is_string(token)) {
-      const stringValue = token.slice(1, -1);
-      const tokenType = "stringConstant";
-      return `<${tokenType}>${stringValue}</${tokenType}>`;
-    }
-    return "";
+  /** Escape XML metacharacters in symbol text (e.g. `<`, `>` as operators). */
+  private escapeXmlSymbol(text: string): string {
+    return text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
   }
 
-  /** Only pushes when `tokenize` classifies the string (avoids `""` in output). */
-  private pushTagged(raw: string): void {
-    const tagged = this.tokenize(raw);
-    if (tagged !== "") {
-      this.tokenizerOutput.push(tagged);
+  private classifyLexeme(raw: string): TokenRecord | null {
+    if (this.is_keyword(raw)) {
+      return { type: TokenType.KEYWORD, lexeme: raw };
     }
+    if (this.is_symbol(raw)) {
+      return { type: TokenType.SYMBOL, lexeme: raw };
+    }
+    if (this.is_identifier(raw)) {
+      return { type: TokenType.IDENTIFIER, lexeme: raw };
+    }
+    if (this.is_number(raw)) {
+      return { type: TokenType.INTEGER_CONST, lexeme: raw };
+    }
+    if (this.is_string(raw)) {
+      return {
+        type: TokenType.STRING_CONST,
+        lexeme: raw.slice(1, -1),
+      };
+    }
+    return null;
+  }
+
+  private tokenizeRecord(rec: TokenRecord): string {
+    switch (rec.type) {
+      case TokenType.KEYWORD:
+        return `<${TokenType.KEYWORD.toLowerCase()}>${rec.lexeme}</${TokenType.KEYWORD.toLowerCase()}>`;
+      case TokenType.SYMBOL: {
+        const body = this.escapeXmlSymbol(rec.lexeme);
+        return `<${TokenType.SYMBOL.toLowerCase()}>${body}</${TokenType.SYMBOL.toLowerCase()}>`;
+      }
+      case TokenType.IDENTIFIER:
+        return `<${TokenType.IDENTIFIER.toLowerCase()}>${rec.lexeme}</${TokenType.IDENTIFIER.toLowerCase()}>`;
+      case TokenType.INTEGER_CONST:
+        return `<integerConstant>${rec.lexeme}</integerConstant>`;
+      case TokenType.STRING_CONST:
+        return `<stringConstant>${rec.lexeme}</stringConstant>`;
+      default: {
+        const _exhaustive: never = rec.type;
+        return _exhaustive;
+      }
+    }
+  }
+
+  /** Classify, append to course token stream and XML line list. */
+  private pushTagged(raw: string): void {
+    const rec = this.classifyLexeme(raw);
+    if (!rec) return;
+    this.tokenRecords.push(rec);
+    this.tokenizerOutput.push(this.tokenizeRecord(rec));
   }
 }
 
