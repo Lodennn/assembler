@@ -18,12 +18,6 @@ class Tokenizer implements ITokenizer {
   private constructor(highLevelLanguageFile: string) {
     this.clean(highLevelLanguageFile);
     this.tokenizeHighLevelLanguageFile(this.cleanHighLevelLanguageFile);
-    console.log("===HIGH LEVEL LANGUAGE FILE===");
-    console.log(highLevelLanguageFile);
-    console.log("===CLEAN HIGH LEVEL LANGUAGE FILE===");
-    console.log(this.cleanHighLevelLanguageFile);
-    console.log("===TOKENIZER OUTPUT===");
-    console.log(this.tokenizerOutput.join("\n"));
   }
   static getInstance(highLevelLanguageFile: string): Tokenizer {
     // Re-tokenize every time so UI can analyze arbitrary code on demand.

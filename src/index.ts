@@ -1,7 +1,8 @@
 import VMTranslatorUI from "./VMTranslator/vm-translator-ui.js";
 import AssemblerUI from "./assembler/assembler-ui.js";
 import SyntaxAnalyzerUI from "./Compiler/syntax-analyzer-ui.js";
-
+import CodeGenerator from "./Compiler/CodeGenerator/code-generator.js";
+import parsed_code from "./Compiler/SyntaxAnalyzer/_test_/parsed_code.js";
 function updateScrollBackground(): void {
   const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
   const progress = maxScroll > 0 ? window.scrollY / maxScroll : 0;
@@ -29,6 +30,7 @@ function init() {
   new SyntaxAnalyzerUI();
   new AssemblerUI();
   new VMTranslatorUI();
+  CodeGenerator.getInstance(parsed_code);
   bindScrollBackground();
 }
 

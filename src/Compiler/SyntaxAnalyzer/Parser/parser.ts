@@ -446,6 +446,7 @@ class Parser implements IParser {
         break;
       case TokenType.SYMBOL:
         this.output += `<symbol>${this.escapeSymbol(token.lexeme)}</symbol>\n`;
+        // this.output += `<symbol>${token.lexeme}</symbol>\n`;
         break;
       case TokenType.IDENTIFIER:
         this.output += `<identifier>${token.lexeme}</identifier>\n`;
